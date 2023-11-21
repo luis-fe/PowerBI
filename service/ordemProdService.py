@@ -44,7 +44,7 @@ def RoteiroOP(dataframeLOTE):
 def MovimentoQuantidade(empresa):
     conn = ConexaoCSW.Conexao()
 
-    get = pd.read_sql('SELECT op.numeroOP , op.codItem  FROM TCO.OrdemProdTamanhos op '
+    get = pd.read_sql('SELECT op.numeroOP , op.codItem, seqTamanho  FROM TCO.OrdemProdTamanhos op '
                       "WHERE op.codEmpresa = " + empresa + "and (op.codLote  like '23%' or op.codLote  like '24%'  )", conn)
     return get
 
@@ -61,6 +61,9 @@ def ConjuntodeOP(empresa):
 
     conjunto1 = conjunto.loc[:1000000]
     conjunto1.to_csv('conjuntoOP_1.csv')
+
+    conjunto2 = conjunto.loc[1000000:]
+    conjunto2.to_csv('conjuntoOP_2.csv')
 
     print(conjunto)
 
