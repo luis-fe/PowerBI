@@ -5,7 +5,7 @@ import ConexaoCSW
 def OrdemProd(empresa):
     conn = ConexaoCSW.Conexao()
     empresa = "'"+empresa+"'"
-    consulta = pd.read_sql('SELECT codLote, numeroOP, codProduto, codTipoOP,  codFaseAtual '
+    consulta = pd.read_sql('SELECT codLote, numeroOP, codProduto, codTipoOP,  codFaseAtual, situacao '
                           ' from tco.OrdemProd op '
                           " WHERE op.codEmpresa = "+ empresa+
                            " and "
@@ -54,7 +54,7 @@ def ConjuntodeOP(empresa):
     ordemprod = OrdemProd(empresa)
     roteiro = RoteiroOP(ordemprod)
     conjunto = pd.merge(ordemprod,roteiro,on='numeroOP')
-    conjunto['statusMovimento'] = conjunto.apply(lambda row: 'em processo' if row['codFaseAtual'] == row['codFase'] else '-',
+    conjunto['statusMovimento'] = conjunto.apply(lambda row: 'movimentado' if row['situacao'] == '3' else '-',
                                       axis=1)
     Quantidde = MovimentoQuantidade('1')
     conjunto = pd.merge(conjunto,Quantidde,on='numeroOP', how='left')
