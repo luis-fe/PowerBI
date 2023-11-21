@@ -62,7 +62,7 @@ def ConjuntodeOP(empresa):
     conjunto['codSeqRoteiroAtual'] = conjunto['codSeqRoteiroAtual'] .astype(int)
     conjunto['codSeqRoteiro'] = conjunto['codSeqRoteiro'] .astype(int)
 
-    conjunto['statusMovimento'] = conjunto.apply(lambda row: 'movimentado' if row['situacao'] == '3' and row['codSeqRoteiroAtual'] > row['codSeqRoteiro'] else 'na fila',
+    conjunto['statusMovimento'] = conjunto.apply(lambda row: 'movimentado' if row['situacao'] == '3' and row['codSeqRoteiroAtual'] > row['codSeqRoteiro'] else '-',
                                       axis=1)
 
     Quantidde = MovimentoQuantidade('1')
