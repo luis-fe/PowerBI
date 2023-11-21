@@ -59,24 +59,27 @@ def ConjuntodeOP(empresa):
     conjunto['codFaseAtual'] = conjunto['codFaseAtual'].astype(str)
     conjunto['statusMovimento'] = conjunto.apply(lambda row: 'movimentado' if row['situacao'] == '2' else '-',
                                       axis=1)
-    conjunto['statusMovimento'] = conjunto.apply(lambda row: 'em processo' if row['statusMovimento'] == '-' and row['codFase'] ==row['codFaseAtual'] else '-',
-                                      axis=1)
+
 
 
     conjunto['codSeqRoteiroAtual'] = conjunto['codSeqRoteiroAtual'].replace('-','0')
     conjunto['codSeqRoteiroAtual'] = conjunto['codSeqRoteiroAtual'] .astype(int)
     conjunto['codSeqRoteiro'] = conjunto['codSeqRoteiro'] .astype(int)
 
-    conjunto['statusMovimento'] = conjunto.apply(lambda row: 'movimentado' if row['statusMovimento'] == '-' and row['codSeqRoteiroAtual'] > row['codSeqRoteiro'] else '-',
+    conjunto['statusMovimento'] = conjunto.apply(lambda row: 'em processo' if row['statusMovimento'] == '-' and row['codSeqRoteiroAtual'] ==row['codSeqRoteiro'] else '-',
                                       axis=1)
-    conjunto['statusMovimento'] = conjunto.apply(lambda row: 'na fila' if row['statusMovimento'] == '-' and row['codSeqRoteiroAtual'] < row['codSeqRoteiro'] else '-',
-                                      axis=1)
+    #conjunto['statusMovimento'] = conjunto.apply(lambda row: 'movimentado' if row['statusMovimento'] == '-' and row['codSeqRoteiroAtual'] > row['codSeqRoteiro'] else '-',
+     #                                 axis=1)
+    #conjunto['statusMovimento'] = conjunto.apply(lambda row: 'na fila' if row['statusMovimento'] == '-' and row['codSeqRoteiroAtual'] < row['codSeqRoteiro'] else '-',
+     #                                 axis=1)
 
     Quantidde = MovimentoQuantidade('1')
     conjunto = pd.merge(conjunto,Quantidde,on='numeroOP', how='left')
 
     conjunto['codFase'] = conjunto.apply(lambda row: DeParaFases(row['codFase']),
                                       axis=1)
+    nomeFase = NomeFase()
+    conjunto = pd.merge(conjunto,nomeFase,on='codFase')
 
     conjunto1 = conjunto.loc[:1000000]
     conjunto1.to_csv('conjuntoOP_1.csv')
@@ -87,11 +90,19 @@ def ConjuntodeOP(empresa):
     print(conjunto)
 
 def DeParaFases(faseAntes):
-    if faseAntes == '55' :
-        return '429'
-    elif faseAntes == '70' :
-        return '413'
+    if faseAntes == '429' :
+        return '55'
+    elif faseAntes == '413' :
+        return '70'
     else:
         return faseAntes
+
+def NomeFase():
+    conn = ConexaoCSW.Conexao()
+
+    get = pd.read_sql('SELECT f.codFase , f.nome as nomeFase  FROM tcp.FasesProducao f '
+                      "WHERE f.codEmpresa = 1", conn)
+    get['codFase'] = get['codFase'].astype(str)
+    return get
 
 print(ConjuntodeOP('1'))
