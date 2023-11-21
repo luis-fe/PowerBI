@@ -5,7 +5,7 @@ import ConexaoCSW
 def OrdemProd(empresa):
     conn = ConexaoCSW.Conexao()
     empresa = "'"+empresa+"'"
-    consulta = pd.read_sql('SELECT codLote, numeroOP, codProduto, codTipoOP,  codFaseAtual, situacao '
+    consulta = pd.read_sql('SELECT codLote, numeroOP, codProduto, codTipoOP,  codFaseAtual, situacao, codSeqRoteiroAtual '
                           ' from tco.OrdemProd op '
                           " WHERE op.codEmpresa = "+ empresa+
                            " and "
@@ -54,8 +54,17 @@ def ConjuntodeOP(empresa):
     ordemprod = OrdemProd(empresa)
     roteiro = RoteiroOP(ordemprod)
     conjunto = pd.merge(ordemprod,roteiro,on='numeroOP')
-    conjunto['statusMovimento'] = conjunto.apply(lambda row: 'movimentado' if row['situacao'] == '3' else '-',
+    conjunto['statusMovimento'] = conjunto.apply(lambda row: 'movimentado' if row['situacao'] == '2' else '-',
                                       axis=1)
+    conjunto['statusMovimento'] = conjunto.apply(lambda row: 'em processo' if row['situacao'] == '3' and row['codFase'] ==row['codFaseAtual'] else '-',
+                                      axis=1)
+    conjunto['codSeqRoteiroAtual'] = conjunto['codSeqRoteiroAtual'].replace('-','0')
+    conjunto['codSeqRoteiroAtual'] = conjunto['codSeqRoteiroAtual'] .astype(int)
+    conjunto['codSeqRoteiro'] = conjunto['codSeqRoteiro'] .astype(int)
+
+    conjunto['statusMovimento'] = conjunto.apply(lambda row: 'movimentado' if row['situacao'] == '3' and row['codSeqRoteiroAtual'] > row['codSeqRoteiro'] else 'na fila',
+                                      axis=1)
+
     Quantidde = MovimentoQuantidade('1')
     conjunto = pd.merge(conjunto,Quantidde,on='numeroOP', how='left')
 
@@ -66,5 +75,13 @@ def ConjuntodeOP(empresa):
     conjunto2.to_csv('conjuntoOP_2.csv')
 
     print(conjunto)
+
+def DeParaFases(faseAntes):
+    if faseAntes == '55' :
+        return '429'
+    elif faseAntes == '70' :
+        return '413'
+    else:
+        return faseAntes
 
 print(ConjuntodeOP('1'))
