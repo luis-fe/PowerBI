@@ -41,9 +41,27 @@ def RoteiroOP(dataframeLOTE):
     return consulta
 
 
+def MovimentoQuantidade(empresa):
+    conn = ConexaoCSW.Conexao()
+
+    get = pd.read_sql('SELECT op.numeroOP , op.codItem  FROM TCO.OrdemProdTamanhos op '
+                      "WHERE op.codEmpresa = " + empresa + "and (op.codLote  like '23%' or op.codLote  like '24%'  )", conn)
+    return get
+
+
 def ConjuntodeOP(empresa):
 
     ordemprod = OrdemProd(empresa)
     roteiro = RoteiroOP(ordemprod)
     conjunto = pd.merge(ordemprod,roteiro,on='numeroOP')
+    conjunto['statusMovimento'] = conjunto.apply(lambda row: 'em processo' if row['codFaseAtual'] == row['codFase'] else '-',
+                                      axis=1)
+    Quantidde = MovimentoQuantidade('1')
+    conjunto = pd.merge(conjunto,Quantidde,on='numeroOP', how='left')
+
+    conjunto1 = conjunto.loc[:1000000]
+    conjunto1.to_csv('conjuntoOP_1.csv')
+
     print(conjunto)
+
+print(ConjuntodeOP('1'))
