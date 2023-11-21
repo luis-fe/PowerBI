@@ -54,19 +54,29 @@ def ConjuntodeOP(empresa):
     ordemprod = OrdemProd(empresa)
     roteiro = RoteiroOP(ordemprod)
     conjunto = pd.merge(ordemprod,roteiro,on='numeroOP')
+    conjunto['codFase'] = conjunto['codFase'].replace('-','0')
+    conjunto['codFase'] = conjunto['codFase'].astype(str)
+    conjunto['codFaseAtual'] = conjunto['codFaseAtual'].astype(str)
     conjunto['statusMovimento'] = conjunto.apply(lambda row: 'movimentado' if row['situacao'] == '2' else '-',
                                       axis=1)
-    conjunto['statusMovimento'] = conjunto.apply(lambda row: 'em processo' if row['situacao'] == '3' and row['codFase'] ==row['codFaseAtual'] else '-',
+    conjunto['statusMovimento'] = conjunto.apply(lambda row: 'em processo' if row['statusMovimento'] == '-' and row['codFase'] ==row['codFaseAtual'] else '-',
                                       axis=1)
+
+
     conjunto['codSeqRoteiroAtual'] = conjunto['codSeqRoteiroAtual'].replace('-','0')
     conjunto['codSeqRoteiroAtual'] = conjunto['codSeqRoteiroAtual'] .astype(int)
     conjunto['codSeqRoteiro'] = conjunto['codSeqRoteiro'] .astype(int)
 
-    conjunto['statusMovimento'] = conjunto.apply(lambda row: 'movimentado' if row['situacao'] == '3' and row['codSeqRoteiroAtual'] > row['codSeqRoteiro'] else '-',
+    conjunto['statusMovimento'] = conjunto.apply(lambda row: 'movimentado' if row['statusMovimento'] == '-' and row['codSeqRoteiroAtual'] > row['codSeqRoteiro'] else '-',
+                                      axis=1)
+    conjunto['statusMovimento'] = conjunto.apply(lambda row: 'na fila' if row['statusMovimento'] == '-' and row['codSeqRoteiroAtual'] < row['codSeqRoteiro'] else '-',
                                       axis=1)
 
     Quantidde = MovimentoQuantidade('1')
     conjunto = pd.merge(conjunto,Quantidde,on='numeroOP', how='left')
+
+    conjunto['codFase'] = conjunto.apply(lambda row: DeParaFases(row['codFase']),
+                                      axis=1)
 
     conjunto1 = conjunto.loc[:1000000]
     conjunto1.to_csv('conjuntoOP_1.csv')
