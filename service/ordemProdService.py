@@ -66,7 +66,7 @@ def ConjuntodeOP(empresa):
     conjunto['codSeqRoteiroAtual'] = conjunto['codSeqRoteiroAtual'] .astype(int)
     conjunto['codSeqRoteiro'] = conjunto['codSeqRoteiro'] .astype(int)
 
-    conjunto['statusMovimento'] = conjunto.apply(lambda row: 'em processo' if row['statusMovimento'] == '-' and row['codSeqRoteiroAtual'] ==row['codSeqRoteiro'] else '-',
+    conjunto['statusMovimento'] = conjunto.apply(lambda row: 'em processo' if row['statusMovimento'] == '-' and row['codSeqRoteiroAtual'] ==row['codSeqRoteiro'] else row['statusMovimento'],
                                       axis=1)
     #conjunto['statusMovimento'] = conjunto.apply(lambda row: 'movimentado' if row['statusMovimento'] == '-' and row['codSeqRoteiroAtual'] > row['codSeqRoteiro'] else '-',
      #                                 axis=1)
