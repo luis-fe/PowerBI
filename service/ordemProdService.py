@@ -45,7 +45,7 @@ def RoteiroOP(dataframeLOTE):
 def MovimentoQuantidade(empresa):
     conn = ConexaoCSW.Conexao()
 
-    get = pd.read_sql('SELECT op.numeroOP , seqTamanho, codSortimento as Sortimento  FROM TCO.OrdemProdTamanhos op '
+    get = pd.read_sql('SELECT op.numeroOP , seqTamanho, codSortimento as Sortimento, op.qtdePecas1Qualidade as qual_1T  FROM TCO.OrdemProdTamanhos op '
                       "WHERE op.codEmpresa = " + empresa + "and (op.codLote  like '23%' or op.codLote  like '24%' or op.codLote  like '22%'  )", conn)
 
 
@@ -71,7 +71,7 @@ def ConjuntodeOP(empresa):
     conjunto['codSeqRoteiroAtual'] = conjunto['codSeqRoteiroAtual'] .astype(int)
     conjunto['codSeqRoteiro'] = conjunto['codSeqRoteiro'] .astype(int)
 
-    conjunto['Roteiro Status'] = conjunto.apply(lambda row: 'Em Producao' if row['Roteiro Status'] == '-' and row['codSeqRoteiroAtual'] ==row['codSeqRoteiro'] else row['Roteiro Status'],
+    conjunto['Roteiro Status'] = conjunto.apply(lambda row: 'Em Produção' if row['Roteiro Status'] == '-' and row['codSeqRoteiroAtual'] ==row['codSeqRoteiro'] else row['Roteiro Status'],
                                       axis=1)
     conjunto['Roteiro Status'] = conjunto.apply(lambda row: 'Movimentado' if row['Roteiro Status'] == '-' and row['codSeqRoteiroAtual'] > row['codSeqRoteiro'] else row['Roteiro Status'],
                                       axis=1)
@@ -104,6 +104,8 @@ def ConjuntodeOP(empresa):
     movimentadas = MovimentoRoteiro(empresa)
     conjunto = pd.merge(conjunto, movimentadas, on=['numeroOP', 'Sortimento', 'seqTamanho','codSeqRoteiro'], how='left')
 
+    conjunto['1ºqual.'] = conjunto.apply(lambda row: row['qual_1Roteiro'] if row["Roteiro Status"] == 'Movimentado' else row['qual_1T'], axis=1 )
+
     conjunto1 = conjunto.loc[:1000000]
     conjunto1.to_csv('conjuntoOP_1.csv')
 
@@ -113,10 +115,32 @@ def ConjuntodeOP(empresa):
     print(conjunto)
 
 def DeParaFases(faseAntes):
-    if faseAntes == '429' :
-        return '55'
-    elif faseAntes == '413' :
-        return '70'
+    if faseAntes == '55' :
+        return '429'
+    elif faseAntes == '70' :
+        return '413'
+    elif faseAntes == '67' :
+        return '416'
+    elif faseAntes == '68' :
+        return '417'
+    elif faseAntes == '30' :
+        return '408'
+    elif faseAntes == '40' :
+        return '409'
+    elif faseAntes == '160' :
+        return '425'
+    elif faseAntes == '85' :
+        return '410'
+    elif faseAntes == '125' :
+        return '415'
+    elif faseAntes == '1' :
+        return '401'
+    elif faseAntes == '10' :
+        return '403'
+    elif faseAntes == '15' :
+        return '404'
+    elif faseAntes == '155' :
+        return '426'
     else:
         return faseAntes
 
@@ -133,7 +157,7 @@ def LocalizandoCodReduzido():
 
     get = pd.read_sql('SELECT i.codItemPai as Engenharia, i.codItem, i.codSortimento as Sortimento, codSeqTamanho as seqTamanho '
                       'FROM Cgi.Item2 i WHERE i.Empresa = 1 and i.codSortimento  > 0 '
-                      "and (codItemPai like  '1%' or codItemPai like '2%' or codItemPai like '5%' )", conn)
+                      "and (codItemPai like  '1%' or codItemPai like '2%' or codItemPai like '5%' or codItemPai like '6%' )", conn)
 
     get['Engenharia'] = get.apply(lambda row: '0' + row['Engenharia'] + '-0' if row['Engenharia'][0] == '1' or row['Engenharia'][0] == '2' else row['Engenharia'] + '-0', axis=1)
 
