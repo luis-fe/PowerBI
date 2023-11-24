@@ -117,30 +117,55 @@ def ConjuntodeOP(empresa):
 def DeParaFases(faseAntes):
     if faseAntes == '55' :
         return '429'
-    elif faseAntes == '70' :
-        return '413'
-    elif faseAntes == '67' :
-        return '416'
-    elif faseAntes == '68' :
-        return '417'
-    elif faseAntes == '30' :
-        return '408'
-    elif faseAntes == '40' :
-        return '409'
-    elif faseAntes == '160' :
-        return '425'
-    elif faseAntes == '85' :
-        return '410'
-    elif faseAntes == '125' :
-        return '415'
     elif faseAntes == '1' :
         return '401'
     elif faseAntes == '10' :
         return '403'
     elif faseAntes == '15' :
         return '404'
+    elif faseAntes == '30' :
+        return '408'
+    elif faseAntes == '67' :
+        return '416'
+    elif faseAntes == '68' :
+        return '417'
+    elif faseAntes == '40' :
+        return '409'
     elif faseAntes == '155' :
         return '426'
+
+    elif faseAntes == '70' :
+        return '413'
+    elif faseAntes == '77' :
+        return '414'
+    elif faseAntes == '71' :
+        return '422'
+    elif faseAntes == '61' :
+        return '424'
+    elif faseAntes == '74' :
+        return '435'
+    elif faseAntes == '85' :
+        return '410'
+    elif faseAntes == '125' :
+        return '415'
+    elif faseAntes == '35' :
+        return '-'
+    elif faseAntes == '160' :
+        return '425'
+
+    elif faseAntes == '50' :
+        return '-'
+
+    elif faseAntes == '62' :
+        return '-'
+    elif faseAntes == '320' :
+        return '-'
+    elif faseAntes == '195' :
+        return '-'
+    elif faseAntes == '210' :
+        return '-'
+    elif faseAntes == '236' :
+        return '-'
     else:
         return faseAntes
 
