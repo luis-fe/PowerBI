@@ -1,4 +1,5 @@
 import pandas as pd
+import locale
 
 import ConexaoCSW
 
@@ -41,6 +42,14 @@ def RoteiroOP(dataframeLOTE):
     conn.close()
     return consulta
 
+def RoteiroEngeharia(empresa):
+    conn = ConexaoCSW.Conexao()
+    consulta = pd.read_sql("SELECT  r.codEngenharia as Engenharia, r.seqProcesso as codSeqRoteiro, r.codFase  FROM tcp.ProcessosEngenharia r "
+                           "WHERE r.codEmpresa = 1 and r.codEngenharia like '%-0'",conn)
+    consulta['numeroOP'] = '-'
+
+    conn.close()
+    return consulta
 
 def MovimentoQuantidade(empresa):
     conn = ConexaoCSW.Conexao()
@@ -80,7 +89,11 @@ def ConjuntodeOP(empresa):
 
     Quantidde = MovimentoQuantidade('1')
 
+
     conjunto = pd.merge(conjunto,Quantidde,on='numeroOP', how='left')
+
+
+
 
     conjunto['codFase'] = conjunto.apply(lambda row: DeParaFases(row['codFase']),
                                       axis=1)
@@ -89,17 +102,27 @@ def ConjuntodeOP(empresa):
 
     reduzido = LocalizandoCodReduzido()
 
-    conjunto['Sortimento'] =conjunto['Sortimento'].astype(str)
-    conjunto['Sortimento'] = conjunto['Sortimento'].str.replace('.0', '', regex=True)
 
+    def format_with_separator(value):
+        return locale.format('%0.0f', value, grouping=True)
+
+    conjunto['Sortimento']  = conjunto['Sortimento'].apply(format_with_separator)
+
+    conjunto['Sortimento'] =conjunto['Sortimento'].astype(str)
+
+
+    reduzido['Sortimento'] =reduzido['Sortimento'].astype(str)
+    #reduzido['Sortimento'] = reduzido['Sortimento'].str.replace('.0', '', regex=True)
     conjunto['seqTamanho'] =conjunto['seqTamanho'].astype(str)
     conjunto['seqTamanho'] = conjunto['seqTamanho'].str.replace('.0', '', regex=True)
-    reduzido['Sortimento'] =reduzido['Sortimento'].astype(str)
-    reduzido['Sortimento'] = reduzido['Sortimento'].str.replace('.0', '', regex=True)
+
     reduzido['seqTamanho'] =reduzido['seqTamanho'].astype(str)
     reduzido['seqTamanho'] = reduzido['seqTamanho'].str.replace('.0', '', regex=True)
 
+    reduzido.to_csv('reduzido2.csv')
     conjunto = pd.merge(conjunto,reduzido,on=['Engenharia','Sortimento','seqTamanho'], how='left')
+
+
 
     movimentadas = MovimentoRoteiro(empresa)
     conjunto = pd.merge(conjunto, movimentadas, on=['numeroOP', 'Sortimento', 'seqTamanho','codSeqRoteiro'], how='left')
@@ -154,18 +177,18 @@ def DeParaFases(faseAntes):
         return '425'
 
     elif faseAntes == '50' :
-        return '-'
+        return '428'
 
     elif faseAntes == '62' :
-        return '-'
+        return '427'
     elif faseAntes == '320' :
-        return '-'
+        return '433'
     elif faseAntes == '195' :
-        return '-'
+        return '437'
     elif faseAntes == '210' :
-        return '-'
+        return '441'
     elif faseAntes == '236' :
-        return '-'
+        return '449'
     else:
         return faseAntes
 
