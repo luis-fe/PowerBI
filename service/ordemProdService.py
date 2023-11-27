@@ -44,9 +44,17 @@ def RoteiroOP(dataframeLOTE):
 
 def RoteiroEngeharia(empresa):
     conn = ConexaoCSW.Conexao()
-    consulta = pd.read_sql("SELECT  r.codEngenharia as Engenharia, r.seqProcesso as codSeqRoteiro, r.codFase  FROM tcp.ProcessosEngenharia r "
-                           "WHERE r.codEmpresa = 1 and r.codEngenharia like '%-0'",conn)
+    consulta = pd.read_sql("SELECT  r.codEmpresa, r.codEngenharia as Engenharia, r.seqProcesso as codSeqRoteiro, r.codFase, r.nomeFase  "
+                           ", (select lt.descricao  from tcl.Lote lt WHERE lt.codEmpresa = 1  and l.codLote = lt.codLote) as desc_lote "
+                           " FROM tcp.ProcessosEngenharia r "
+                           "inner join tcl.LoteEngenharia l on l.Empresa = r.codEmpresa and l.codEngenharia = r.codEngenharia  "
+                           "WHERE l.Empresa = 1 and l.codLote = '23N24B'",conn)
     consulta['numeroOP'] = '-'
+    consulta['qual_1T'] = 0
+    consulta['Roteiro Status'] = 'A Produzir'
+    consulta['TipoOP'] = '999'
+    consulta['codLote'] = '23N24B'
+
 
     conn.close()
     return consulta
@@ -119,9 +127,13 @@ def ConjuntodeOP(empresa):
     reduzido['seqTamanho'] =reduzido['seqTamanho'].astype(str)
     reduzido['seqTamanho'] = reduzido['seqTamanho'].str.replace('.0', '', regex=True)
 
-    reduzido.to_csv('reduzido2.csv')
-    conjunto = pd.merge(conjunto,reduzido,on=['Engenharia','Sortimento','seqTamanho'], how='left')
+    roteiroEng = RoteiroEngeharia('1')
 
+    roteiroEng = pd.merge(roteiroEng, reduzido, on=['Engenharia'])
+
+    conjunto = pd.merge(conjunto,reduzido,on=['Engenharia','Sortimento','seqTamanho'], how='left')
+    conjunto = pd.concat([conjunto, roteiroEng], ignore_index=True)
+    conjunto.fillna('-', inplace=True)
 
 
     movimentadas = MovimentoRoteiro(empresa)
@@ -132,14 +144,22 @@ def ConjuntodeOP(empresa):
     conjunto1 = conjunto.loc[:1000000]
     conjunto1.to_csv('conjuntoOP_1.csv')
 
-    conjunto2 = conjunto.loc[1000000:]
+    conjunto2 = conjunto.loc[1000000:2000000]
     conjunto2.to_csv('conjuntoOP_2.csv')
+
+    conjunto2 = conjunto.loc[2000000:]
+    conjunto2.to_csv('conjuntoOP_3.csv')
 
     print(conjunto)
 
 def DeParaFases(faseAntes):
     if faseAntes == '55' :
         return '429'
+    elif faseAntes == '255' :
+        return '429'
+    elif faseAntes == '355' :
+        return '429'
+
     elif faseAntes == '1' :
         return '401'
     elif faseAntes == '10' :
@@ -156,6 +176,10 @@ def DeParaFases(faseAntes):
         return '409'
     elif faseAntes == '155' :
         return '426'
+    elif faseAntes == '72' :
+        return '421'
+    elif faseAntes == '78' :
+        return '420'
 
     elif faseAntes == '70' :
         return '413'
