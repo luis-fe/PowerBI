@@ -1,43 +1,40 @@
 import pandas as pd
-from flask import Flask, render_template, jsonify, request, send_from_directory
-#from flask_cors import CORS
-import os
-from werkzeug.utils import secure_filename
+from flask import Flask, jsonify, request
 from functools import wraps
-
-
-
+from service import ordemProdService
+from apscheduler.schedulers.background import BackgroundScheduler
+import os
 app = Flask(__name__)
 port = int(os.environ.get('PORT', 8000))
 
-#app.register_blueprint(routes_blueprint)
-
-def token_required(f): #Aqui passamos o token fixo, que pode ser alterado
+def token_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         token = request.headers.get('Authorization')
-        if token == 'a44pcp22':  # Verifica se o token é igual ao token fixo
+        if token == 'a44pcp22':
             return f(*args, **kwargs)
         return jsonify({'message': 'Acesso negado'}), 401
 
     return decorated_function
-@app.route('/PowerBI/api/teste', methods=['GET'])
-def teste():
-    usuarios = pd.DataFrame([{'nome':'teste'}])
-    # Obtém os nomes das colunas
 
+def execute_periodically():
+    print("Executando a cada 15 minutos...")
+    usuarios = pd.DataFrame([{'nome': 'teste'}])
+    ordemProdService.ConjuntodeOP('1')
     column_names = usuarios.columns
-    # Monta o dicionário com os cabeçalhos das colunas e os valores correspondentes
     OP_data = []
     for index, row in usuarios.iterrows():
         op_dict = {}
         for column_name in column_names:
             op_dict[column_name] = row[column_name]
         OP_data.append(op_dict)
-    return jsonify(OP_data)
+    print(OP_data)
 
-# Press the green button in the gutter to run the script.
+# Configurar o agendador
+scheduler = BackgroundScheduler()
+scheduler.add_job(execute_periodically, 'interval', minutes=15)
+scheduler.start()
+
 if __name__ == '__main__':
+    ordemProdService.ConjuntodeOP('1')
     app.run(host='0.0.0.0', port=port)
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/

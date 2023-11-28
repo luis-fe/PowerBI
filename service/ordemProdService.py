@@ -147,8 +147,8 @@ def ConjuntodeOP(empresa):
     conjunto2 = conjunto.loc[1000000:2000000]
     conjunto2.to_csv('conjuntoOP_2.csv')
 
-    conjunto2 = conjunto.loc[2000000:]
-    conjunto2.to_csv('conjuntoOP_3.csv')
+    conjunto3 = conjunto.loc[2000000:]
+    conjunto3.to_csv('conjuntoOP_3.csv')
 
     print(conjunto)
 
@@ -254,7 +254,7 @@ def MovimentoRoteiro(empresa):
 
 
     return get
-print(ConjuntodeOP('1'))
+#print(ConjuntodeOP('1'))
 
 
 
