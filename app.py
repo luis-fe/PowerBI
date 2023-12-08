@@ -4,7 +4,18 @@ from functools import wraps
 from service import ordemProdService
 from apscheduler.schedulers.background import BackgroundScheduler
 import os
-import time
+import locale
+import pytz
+
+
+import datetime
+
+
+def obterHoraAtual():
+    fuso_horario = pytz.timezone('America/Sao_Paulo')  # Define o fuso horário do Brasil
+    agora = datetime.datetime.now(fuso_horario)
+    hora_str = agora.strftime('%H')
+    return hora_str
 
 
 app = Flask(__name__)
@@ -24,7 +35,13 @@ def execute_periodically():
     print("Executando a cada 15 minutos...")
     usuarios = pd.DataFrame([{'nome': 'teste'}])
 
-    ordemProdService.ConjuntodeOP('1')
+
+    hora = obterHoraAtual()
+
+    if hora in ['10','11','12','13','14','15']:
+        ordemProdService.ConjuntodeOP('1')
+    else:
+        print(hora)
     column_names = usuarios.columns
     OP_data = []
     for index, row in usuarios.iterrows():
@@ -40,5 +57,7 @@ scheduler.add_job(execute_periodically, 'interval', minutes=15)
 scheduler.start()
 
 if __name__ == '__main__':
-    ordemProdService.ConjuntodeOP('1')
+   # ordemProdService.ConjuntodeOP('1')
+    hora = obterHoraAtual()
+    print(hora)
     app.run(host='0.0.0.0', port=port)
