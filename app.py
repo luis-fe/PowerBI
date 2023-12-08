@@ -4,6 +4,9 @@ from functools import wraps
 from service import ordemProdService
 from apscheduler.schedulers.background import BackgroundScheduler
 import os
+import time
+
+
 app = Flask(__name__)
 port = int(os.environ.get('PORT', 8000))
 
@@ -20,6 +23,7 @@ def token_required(f):
 def execute_periodically():
     print("Executando a cada 15 minutos...")
     usuarios = pd.DataFrame([{'nome': 'teste'}])
+
     ordemProdService.ConjuntodeOP('1')
     column_names = usuarios.columns
     OP_data = []

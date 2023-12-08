@@ -196,7 +196,7 @@ def DeParaFases(faseAntes):
     elif faseAntes == '125' :
         return '415'
     elif faseAntes == '35' :
-        return '-'
+        return '406'
     elif faseAntes == '160' :
         return '425'
 
