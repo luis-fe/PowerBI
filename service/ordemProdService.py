@@ -76,6 +76,10 @@ def ConjuntodeOP(empresa):
     conjunto = pd.merge(ordemprod,roteiro,on='numeroOP')
     conjunto['codFase'] = conjunto['codFase'].replace('-','0')
     conjunto['codFase'] = conjunto['codFase'].astype(str)
+
+    obsGiro = ObservacaoGiro('1')
+    conjunto = pd.merge(conjunto,obsGiro,on=['numeroOP','codFase'], how='left')
+
     conjunto['codEmpresa'] = conjunto['codEmpresa'].astype(str)
 
     conjunto['codFaseAtual'] = conjunto['codFaseAtual'].astype(str)
@@ -258,6 +262,12 @@ def MovimentoRoteiro(empresa):
 
 
 
+def ObservacaoGiro(empresa):
+    conn = ConexaoCSW.Conexao()
+    consulta = pd.read_sql('SELECT o.codFase as codFase ,CONVERT (varchar(12),o.codOP) as numeroOP  ,o.textoLinha FROM tco.ObservacoesGiroFasesTexto o '
+                           "where o.Empresa = 1 and (o.codLote  like '23%' or o.codLote  like '24%') ", conn)
+    consulta['codFase'] = consulta['codFase'].astype(str)
 
+    return consulta
 
 
