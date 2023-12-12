@@ -57,7 +57,7 @@ scheduler.add_job(execute_periodically, 'interval', minutes=15)
 scheduler.start()
 
 if __name__ == '__main__':
-    ordemProdService.ConjuntodeOP('1')
+    #ordemProdService.ConjuntodeOP('1')
     hora = obterHoraAtual()
     print(hora)
     app.run(host='0.0.0.0', port=port)

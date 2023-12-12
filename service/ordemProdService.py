@@ -1,8 +1,17 @@
 import pandas as pd
 import locale
+import pytz
 
 import ConexaoCSW
+import datetime
 
+
+
+def obterHoraAtual():
+    fuso_horario = pytz.timezone('America/Sao_Paulo')  # Define o fuso horário do Brasil
+    agora = datetime.datetime.now(fuso_horario)
+    hora_str = agora.strftime('%Y-%m-%d %H:%M:%S')
+    return hora_str
 def OrdemProd(empresa):
     conn = ConexaoCSW.Conexao()
     empresa = "'"+empresa+"'"
@@ -144,7 +153,8 @@ def ConjuntodeOP(empresa):
     conjunto = pd.merge(conjunto, movimentadas, on=['numeroOP', 'Sortimento', 'seqTamanho','codSeqRoteiro'], how='left')
 
     conjunto['1ºqual.'] = conjunto.apply(lambda row: row['qual_1Roteiro'] if row["Roteiro Status"] == 'Movimentado' else row['qual_1T'], axis=1 )
-
+    obterDH = obterHoraAtual()
+    conjunto['DataHora'] = obterDH
     conjunto1 = conjunto.loc[:1000000]
     conjunto1.to_csv('conjuntoOP_1.csv')
 
