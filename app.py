@@ -59,5 +59,8 @@ scheduler.start()
 if __name__ == '__main__':
     hora = obterHoraAtual()
     print(hora)
-    execute_periodically()
+    if hora in ['10', '11', '12', '13', '14', '15', '16']:
+        ordemProdService.ConjuntodeOP('1')
+    else:
+        print(hora)
     app.run(host='0.0.0.0', port=port)
