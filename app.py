@@ -38,7 +38,7 @@ def execute_periodically():
 
     hora = obterHoraAtual()
 
-    if hora in ['10','11','12','13','14','15']:
+    if hora in ['10','11','12','13','14','15','16']:
         ordemProdService.ConjuntodeOP('1')
     else:
         print(hora)
