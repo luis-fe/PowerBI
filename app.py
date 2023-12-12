@@ -58,7 +58,7 @@ scheduler.start()
 
 if __name__ == '__main__':
     hora = obterHoraAtual()
-    print(hora)
+    print('Hora Atual é'+hora)
     if hora in ['10', '11', '12', '13', '14', '15', '16']:
         ordemProdService.ConjuntodeOP('1')
     else:
