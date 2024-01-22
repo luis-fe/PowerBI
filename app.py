@@ -1,5 +1,5 @@
 import pandas as pd
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 from functools import wraps
 from service import ordemProdService
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -50,6 +50,10 @@ def execute_periodically():
             op_dict[column_name] = row[column_name]
         OP_data.append(op_dict)
     print(OP_data)
+
+@app.route('/DashboardComercial') # Aqui é o link da pagina incial do Portal da Garantia
+def DashboardComercial():
+    return render_template('DashboardComercial.html')
 
 # Configurar o agendador
 scheduler = BackgroundScheduler()
