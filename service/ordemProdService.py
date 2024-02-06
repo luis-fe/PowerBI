@@ -45,7 +45,7 @@ def RoteiroOP(dataframeLOTE):
     resultado = '({})'.format(', '.join(["'{}'".format(valor) for valor in dataframeLOTE['codLote']]))
 
     conn = ConexaoCSW.Conexao()
-    consulta = pd.read_sql('SELECT r.numeroOP , r.codSeqRoteiro , r.codFase FROM tco.RoteiroOP r '
+    consulta = pd.read_sql('SELECT r.numeroOP , r.codSeqRoteiro , r.codFase, SUBSTRING(observacao10,17,11) as data_entrada FROM tco.RoteiroOP r '
                            'WHERE r.codempresa = 1 and  '
                            'r.codLote  in '+ resultado,conn)
     conn.close()
@@ -153,16 +153,22 @@ def ConjuntodeOP(empresa):
     conjunto = pd.merge(conjunto, movimentadas, on=['numeroOP', 'Sortimento', 'seqTamanho','codSeqRoteiro'], how='left')
 
     conjunto['1ºqual.'] = conjunto.apply(lambda row: row['qual_1Roteiro'] if row["Roteiro Status"] == 'Movimentado' else row['qual_1T'], axis=1 )
+    conjunto.drop(['qual_1Roteiro','qual_2Roteiro'], axis=1, inplace=True)
+
     obterDH = obterHoraAtual()
     conjunto['DataHora'] = obterDH
+
+    cargasetor = conjunto[conjunto['Roteiro Status'] == 'Em Produção']
+    cargasetor.to_csv('cargaSetor.csv')
+    conjunto = conjunto[conjunto['TipoOP']!='13']
     conjunto1 = conjunto.loc[:1000000]
-    conjunto1.to_csv('conjuntoOP_1.csv')
+    conjunto1.to_csv('conjuntoOP_1.csv', sep=';')
 
     conjunto2 = conjunto.loc[1000000:2000000]
-    conjunto2.to_csv('conjuntoOP_2.csv')
+    conjunto2.to_csv('conjuntoOP_2.csv', sep=';')
 
     conjunto3 = conjunto.loc[2000000:]
-    conjunto3.to_csv('conjuntoOP_3.csv')
+    conjunto3.to_csv('conjuntoOP_3.csv', sep=';')
 
     print(conjunto)
 
@@ -233,7 +239,7 @@ def DeParaFases(faseAntes):
 def NomeFase():
     conn = ConexaoCSW.Conexao()
 
-    get = pd.read_sql('SELECT f.codFase , f.nome as nomeFase  FROM tcp.FasesProducao f '
+    get = pd.read_sql('SELECT f.codFase , f.nome as nomeFase, leadTime  FROM tcp.FasesProducao f '
                       "WHERE f.codEmpresa = 1", conn)
     get['codFase'] = get['codFase'].astype(str)
     return get
